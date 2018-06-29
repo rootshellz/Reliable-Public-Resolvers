@@ -12,12 +12,8 @@
 SUDO=
 PPS_RATE=2048
 TIMEOUT=2
-TEST_DOMAIN=msn.com
-EXPECTED_IP=13.82.28.61
-# Some stable A records for testing:
-# msn.com -> 13.82.28.61
-# linkedin.com -> 108.174.10.10
-
+TEST_DOMAIN=linkedin.com
+EXPECTED_IP=108.174.10.10
 
 if [[ "$1" != "" ]]; then
     RESOLVER_CANDIDATES_INPUT_FILE=$1
