@@ -48,7 +48,7 @@ for CANDIDATE in $(cat $PORTSCAN_OUTPUT_FILE | grep open | cut -d" " -f2 | sort 
     echo -n "    Testing resolution on $CANDIDATE: "
     dig -t a +time=${TIMEOUT} $TEST_DOMAIN @$CANDIDATE | grep $EXPECTED_IP 2>&1 1>/dev/null
     if [ "$?" -eq "0" ]; then
-        if ! dig -t a +time=${TIMEOUT} myftpbad.${TEST_DOMAIN} @$CANDIDATE | grep IN | grep A 2>&1 1>/dev/null; then
+        if ! dig +noall +answer -t a +time=${TIMEOUT} myftpbad.${TEST_DOMAIN} @$CANDIDATE | grep IN | grep A 2>&1 1>/dev/null; then
             echo "$CANDIDATE" >> "${OUTPUT_DIRECTORY}/${OPEN_RESOLVERS_OUTPUT_FILE}"
             echo "good!"
         else
