@@ -42,9 +42,15 @@ echo "* Completed port scan"
 echo "* Testing resolution on $(cat $PORTSCAN_OUTPUT_FILE | grep open | wc -l) listening resolvers"
 for CANDIDATE in $(cat $PORTSCAN_OUTPUT_FILE | grep open | cut -d" " -f2 | sort -uV); do
     echo -n "    Testing resolution on $CANDIDATE: "
-    dig -t a +time=${TIMEOUT} $TEST_DOMAIN @$CANDIDATE | grep $EXPECTED_IP 2>&1 1>/dev/null && echo "$CANDIDATE" >> "${OUTPUT_DIRECTORY}/${OPEN_RESOLVERS_OUTPUT_FILE}"
+    dig -t a +time=${TIMEOUT} $TEST_DOMAIN @$CANDIDATE | grep $EXPECTED_IP 2>&1 1>/dev/null
     if [ "$?" -eq "0" ]; then
-        echo "good!"
+        if ! dig +noall +answer -t a +time=${TIMEOUT} myftpbad.${TEST_DOMAIN} @$CANDIDATE | grep IN | grep A 2>&1 1>/dev/null; then
+            echo "$CANDIDATE" >> "${OUTPUT_DIRECTORY}/${OPEN_RESOLVERS_OUTPUT_FILE}"
+            echo "good!"
+        else
+            echo "$CANDIDATE" >> "${OUTPUT_DIRECTORY}/hijackers.txt"
+            echo "hijacker!"
+        fi
     else
         echo "bad!"
     fi
@@ -55,4 +61,5 @@ echo "--- Results ---"
 echo "* $(cat $RESOLVER_CANDIDATES_INPUT_FILE | sort -u | wc -l) candidates"
 echo "* $(cat $PORTSCAN_OUTPUT_FILE | grep open | sort -u | wc -l) listening resolvers"
 echo "* $(cat ${OUTPUT_DIRECTORY}/${OPEN_RESOLVERS_OUTPUT_FILE} | wc -l) reliable resolvers"
+echo "* $(cat ${OUTPUT_DIRECTORY}/hijackers.txt | wc -l) hijackers"
 echo "* See ${OUTPUT_DIRECTORY}/${OPEN_RESOLVERS_OUTPUT_FILE} for details"
